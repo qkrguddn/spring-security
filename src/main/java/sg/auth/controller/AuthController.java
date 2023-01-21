@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import sg.auth.dto.LoginDto;
 import sg.auth.dto.TokenDto;
 import sg.auth.dto.UserDto;
+import sg.auth.entity.User;
 import sg.auth.jwt.JwtFilter;
 import sg.auth.jwt.TokenProvider;
 import sg.auth.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Optional;
 
 
 @RestController
@@ -29,6 +31,7 @@ public class AuthController {
     public AuthController(UserService userService){
         this.userService = userService;
     }
+
     @PostMapping("/join")
     public ResponseEntity<UserDto> signup(
             @Valid @RequestBody UserDto userDto) {

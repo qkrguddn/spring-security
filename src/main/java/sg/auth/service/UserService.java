@@ -3,6 +3,7 @@ package sg.auth.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +27,7 @@ import sg.auth.jwt.JwtFilter;
 import sg.auth.jwt.TokenProvider;
 import sg.auth.repository.UserRepository;
 import sg.auth.util.SecurityUtil;
-
+@Transactional
 @Service
 public class UserService {
       private final UserRepository userRepository;
@@ -40,8 +41,6 @@ public class UserService {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
-
-    @Transactional
     public UserDto signup(UserDto userDto) {
         if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
             throw new DuplicateMemberException("이미 가입되어 있는 유저입니다.");
@@ -61,7 +60,6 @@ public class UserService {
         return UserDto.from(userRepository.save(user));
     }
 
-    @Transactional
     public ResponseEntity<TokenDto> login(LoginDto loginDto){
 
         userRepository.findOneWithAuthoritiesByUsername(loginDto.getUsername());
@@ -79,12 +77,11 @@ public class UserService {
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
 
     }
-    @Transactional(readOnly = true)
     public UserDto getUserWithAuthorities(String username) {
         return UserDto.from(userRepository.findOneWithAuthoritiesByUsername(username).orElse(null));
     }
 
-    @Transactional(readOnly = true)
+
     public UserDto getMyUserWithAuthorities() {
         return UserDto.from(
                 SecurityUtil.getCurrentUsername()
@@ -92,7 +89,7 @@ public class UserService {
                         .orElseThrow(() -> new NotFoundMemberException("Member not found"))
         );
     }
-    @Transactional
+
     public List<User> getAllUser(){
         return userRepository.findAll();
     }
